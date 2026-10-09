@@ -1,0 +1,21 @@
+{
+  "name": "vanilla-js-event-tracker",
+  "version": "1.0.0",
+  "description": "Lightweight, framework-agnostic GA4 click tracking with delegated events and deferred DOM processing.",
+  "type": "module",
+  "exports": "./src/index.js",
+  "files": ["src", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "demo": "vite --host 127.0.0.1"
+  },
+  "engines": { "node": ">=22.12.0" },
+  "license": "MIT",
+  "devDependencies": {
+    "jsdom": "^26.1.0",
+    "vitest": "^4.1.11",
+    "vite": "^7.3.7"
+  }
+}

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Delegated click tracker demo</title>
+  <style>
+    body { font: 17px/1.6 system-ui, sans-serif; max-width: 850px; margin: 3rem auto; padding: 0 1rem; color: #192638; background: #f5f7fb; }
+    button, input, a { font: inherit; margin: .4rem; }
+    button { padding: .5rem 1rem; cursor: pointer; }
+    section { background: white; padding: 1rem; margin: 1rem 0; border-radius: 12px; }
+    pre { background: #192638; color: #d6edff; padding: 1rem; white-space: pre-wrap; overflow-wrap: anywhere; min-height: 5rem; }
+  </style>
+</head>
+<body>
+  <h1>One listener. Dynamic interactions.</h1>
+  <p>Allow demo analytics, then try the controls. The local gtag stub displays deferred events below; nothing is sent to Google.</p>
+  <label><input id="consent" type="checkbox"> Allow demo analytics</label>
+  <section>
+    <button data-track="signup"><span aria-hidden="true">★</span> Sign up</button>
+    <a href="#events" data-track="view-events">View events</a>
+    <button id="add" data-track="add-control">Add dynamic button</button>
+    <button id="remove" data-track="remove-self">Remove this button on click</button>
+    <div id="dynamic"></div><div id="shadow"></div>
+  </section>
+  <section>
+    <label>Value stays private <input type="text" value="Never included in events"></label>
+    <button id="stop">Stop tracker</button><button id="start">Start tracker</button>
+    <p id="status" role="status">Tracker started; consent denied.</p>
+  </section>
+  <h2 id="events">Local event log</h2>
+  <pre id="log" aria-live="polite">Waiting for consent and a click…</pre>
+  <script type="module">
+    import { createTracker } from '../src/index.js';
+    const consent = document.querySelector('#consent');
+    const status = document.querySelector('#status');
+    const log = document.querySelector('#log');
+    const events = [];
+    window.gtag = (...args) => {
+      events.unshift(args);
+      log.textContent = JSON.stringify(events.slice(0, 12), null, 2);
+    };
+    const tracker = createTracker({ hasConsent: () => consent.checked });
+    tracker.start();
+    consent.addEventListener('change', () => { status.textContent = consent.checked ? 'Consent granted.' : 'Consent denied.'; });
+    document.querySelector('#add').addEventListener('click', () => {
+      const button = document.createElement('button');
+      button.dataset.track = 'dynamic-action'; button.textContent = 'Dynamically inserted';
+      document.querySelector('#dynamic').append(button);
+    });
+    document.querySelector('#remove').addEventListener('click', (event) => event.currentTarget.remove());
+    document.querySelector('#shadow').attachShadow({ mode: 'open' }).innerHTML = '<button data-track="shadow-action"><span>Open Shadow DOM button</span></button>';
+    document.querySelector('#stop').addEventListener('click', () => { tracker.stop(); status.textContent = 'Tracker stopped.'; });
+    document.querySelector('#start').addEventListener('click', () => { tracker.start(); status.textContent = 'Tracker started.'; });
+  </script>
+</body>
+</html>
